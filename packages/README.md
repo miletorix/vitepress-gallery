@@ -9,7 +9,7 @@ A responsive, swipeable image gallery component for VitePress with thumbnails, n
 </p>
 
 📦 NPM Package:  
-👉 [https://www.npmjs.com/package/@miletorix/vitepress-image-group](https://www.npmjs.com/package/@miletorix/vitepress-image-group)
+👉 [https://www.npmjs.com/package/@miletorix/vitepress-gallery](https://www.npmjs.com/package/@miletorix/vitepress-gallery)
 
 ## Installation
 
