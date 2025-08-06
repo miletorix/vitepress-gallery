@@ -126,15 +126,18 @@ const altText = computed(() => {
 .gallery-box {
   width: 100%;
   max-width: 1000px;
-  background-color: var(--vp-c-bg-soft);
-  border: 2px solid var(--vp-c-border);
+  background-color: var(--vp-code-block-bg);
+  /* border: 2px solid transparent; */
   border-radius: 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); */
   padding: 1rem;
   transition: background-color 0.25s, border-color 0.25s;
   overflow: hidden;
 }
 
+/* .gallery-box:hover {
+  border-color: var(--vp-c-brand-soft);
+} */
 
 .top-bar {
   display: flex;
@@ -156,7 +159,7 @@ const altText = computed(() => {
 
 .top-bar button:hover:not(:disabled) {
   background-color: var(--vp-c-brand-soft);
-  color: var(--vp-c-brand-contrast);
+  color: var(--vp-c-brand-1);
 }
 
 .top-bar button:disabled {
@@ -165,7 +168,7 @@ const altText = computed(() => {
 }
 
 .counter {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   color: var(--vp-c-text-2);
 }
 
@@ -183,7 +186,7 @@ const altText = computed(() => {
   border-radius: 0.4rem;
   overflow: hidden;
   opacity: 0.5;
-  filter: blur(1px) brightness(0.8);
+  filter: brightness(0.6);
   transition: all 0.25s ease;
 }
 
@@ -203,12 +206,12 @@ const altText = computed(() => {
 
 .caption {
   overflow-x: auto;
-  padding: 0 1rem 1rem;
+  padding: 1rem 1rem 1rem;
   text-align: center;
   max-width: 100%;
   word-break: break-word;
-  font-size: 0.91rem;
-  font-style: italic;
+  font-size: 0.95rem;
+  /* font-style: italic; */
   line-height: 1.4;
   color: var(--vp-c-text-2);
 }
