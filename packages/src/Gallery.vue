@@ -3,13 +3,19 @@
     <div class="gallery-box">
 
       <div class="top-bar">
-        <button @click="prev" :disabled="!hasPrev" aria-label="Previous"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
-	<path fill="currentColor" d="m5.83 9l5.58-5.58L10 2l-8 8l8 8l1.41-1.41L5.83 11H18V9z" />
-</svg></button>
+        <button @click="prev" :disabled="!hasPrev" aria-label="Previous">
+          <!-- SVG left arrow -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+            <path fill="currentColor" d="m5.83 9l5.58-5.58L10 2l-8 8l8 8l1.41-1.41L5.83 11H18V9z" />
+          </svg>
+        </button>
         <span class="counter">{{ currentIndex + 1 }} / {{ images.length }}</span>
-        <button @click="next" :disabled="!hasNext" aria-label="Next"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
-	<path fill="currentColor" d="M2 11h12.2l-5.6 5.6L10 18l8-8l-8-8l-1.4 1.4L14.2 9H2z" />
-</svg></button>
+        <button @click="next" :disabled="!hasNext" aria-label="Next">
+          <!-- SVG right arrow -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+            <path fill="currentColor" d="M2 11h12.2l-5.6 5.6L10 18l8-8l-8-8l-1.4 1.4L14.2 9H2z" />
+          </svg>
+        </button>
       </div>
 
       <div class="thumbnails">
@@ -23,21 +29,20 @@
         </div>
       </div>
 
-
       <div class="caption" v-if="captions?.[currentIndex]">
         {{ captions[currentIndex] }}
       </div>
-
 
       <div class="image-wrapper">
         <transition :name="direction" mode="out-in">
           <img
             :src="images[currentIndex]"
-            :alt="'Image ' + (currentIndex + 1)"
+            :alt="altText"
             :key="images[currentIndex]"
           />
         </transition>
       </div>
+
     </div>
   </div>
 </template>
@@ -84,6 +89,8 @@ function next() {
   }
 }
 
+const offset = computed(() => Math.max(0, currentIndex.value - 2))
+
 const surroundingImages = computed(() => {
   const result: string[] = []
   for (let i = -2; i <= 2; i++) {
@@ -95,8 +102,17 @@ const surroundingImages = computed(() => {
   return result
 })
 
-const offset = computed(() => {
-  return Math.max(0, currentIndex.value - 2)
+function escapeHTML(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+const altText = computed(() => {
+  const caption = props.captions?.[currentIndex.value]
+  return caption ? escapeHTML(caption) : `Image ${currentIndex.value + 1}`
 })
 </script>
 
@@ -104,7 +120,7 @@ const offset = computed(() => {
 .gallery-container {
   display: flex;
   justify-content: center;
-  padding: 2rem 1rem;
+  padding: 2rem 0 1rem 0;
 }
 
 .gallery-box {
@@ -210,7 +226,7 @@ const offset = computed(() => {
   max-width: 100%;
   height: auto;
   border-radius: 0.75rem;
-  transition: all 0.25s ease;
+  transition: all 0.3s ease;
   object-fit: contain;
 }
 

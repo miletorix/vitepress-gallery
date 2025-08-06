@@ -37,7 +37,7 @@ export default {
 }
 ```
 
-### Image Group
+### Gallery
 
 ```vue
 <Gallery 
@@ -55,3 +55,9 @@ export default {
   ]"
 />
 ```
+
+> [!NOTE]  
+> Captions are optional.
+
+> [!NOTE]  
+> Alt text by default if captions are not specified - Image 1, Image 2, Image ... etc. If captions are specified, then alt = captions

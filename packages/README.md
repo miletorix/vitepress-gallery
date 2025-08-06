@@ -8,9 +8,6 @@ A responsive, swipeable image gallery component for VitePress with thumbnails, n
   <img src="/assets/demo-1.png" alt="demo" width="800">
 </p>
 
-📦 NPM Package:  
-👉 [https://www.npmjs.com/package/@miletorix/vitepress-gallery](https://www.npmjs.com/package/@miletorix/vitepress-gallery)
-
 ## Installation
 
 ```sh
@@ -37,7 +34,7 @@ export default {
 }
 ```
 
-### Image Group
+### Gallery
 
 ```vue
 <Gallery 
@@ -55,3 +52,7 @@ export default {
   ]"
 />
 ```
+
+> Captions are optional.
+
+> Alt text by default if captions are not specified - Image 1, Image 2, Image ... etc. If captions are specified, then alt = captions
