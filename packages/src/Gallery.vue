@@ -3,14 +3,14 @@
     <div class="gallery-box">
 
       <div class="top-bar">
-        <button @click="prev" :disabled="!hasPrev" aria-label="Previous">
+        <button @click="prev" :disabled="!hasPrev" aria-label="Previous" title="Previous">
           <!-- SVG left arrow -->
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
             <path fill="currentColor" d="m5.83 9l5.58-5.58L10 2l-8 8l8 8l1.41-1.41L5.83 11H18V9z" />
           </svg>
         </button>
         <span class="counter">{{ currentIndex + 1 }} / {{ images.length }}</span>
-        <button @click="next" :disabled="!hasNext" aria-label="Next">
+        <button @click="next" :disabled="!hasNext" aria-label="Next" title="Next">
           <!-- SVG right arrow -->
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
             <path fill="currentColor" d="M2 11h12.2l-5.6 5.6L10 18l8-8l-8-8l-1.4 1.4L14.2 9H2z" />
@@ -25,7 +25,10 @@
           class="thumb"
           :class="{ active: index + offset === currentIndex }"
         >
-          <img :src="img" :alt="'Thumbnail ' + (index + offset + 1)" />
+          <img
+            :src="img"
+            :alt="props.captions?.[index + offset] || ''"
+          />
         </div>
       </div>
 
