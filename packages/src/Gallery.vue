@@ -9,7 +9,7 @@
             <path fill="currentColor" d="m5.83 9l5.58-5.58L10 2l-8 8l8 8l1.41-1.41L5.83 11H18V9z" />
           </svg>
         </button>
-        <span class="counter">{{ currentIndex + 1 }} / {{ images.length }}</span>
+        <span class="counter">{{ currentIndex + 1 }} / {{ props.images.length }}</span>
         <button @click="next" :disabled="!hasNext" aria-label="Next" title="Next">
           <!-- SVG right arrow -->
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
@@ -19,29 +19,47 @@
       </div>
 
       <div class="thumbnails">
-        <div
-          v-for="(img, index) in surroundingImages"
-          :key="index"
+        <button
+          v-for="(img, idx) in surroundingImages"
+          :key="idx"
+          type="button"
           class="thumb"
-          :class="{ active: index + offset === currentIndex }"
+          :class="{ active: (idx + offset) === currentIndex }"
+          @pointerdown.stop
+          @click.stop="goTo(idx + offset)"
+          :aria-pressed="(idx + offset) === currentIndex"
+          :title="props.captions?.[idx + offset] || `Image ${idx + offset + 1}`"
         >
           <img
             :src="img"
-            :alt="props.captions?.[index + offset] || ''"
+            :alt="props.captions?.[idx + offset] || ''"
+            draggable="false"
+            @dragstart.prevent
           />
-        </div>
+        </button>
       </div>
 
-      <div class="caption" v-if="captions?.[currentIndex]">
-        {{ captions[currentIndex] }}
+      <div class="all-images-hidden" aria-hidden="true">
+        <img
+          v-for="(src, i) in props.images"
+          :key="'hidden-' + i"
+          :src="src"
+          :alt="props.captions?.[i] || ''"
+          loading="eager"
+          draggable="false"
+        />
+      </div>
+
+      <div class="caption" v-if="props.captions?.[currentIndex]">
+        {{ props.captions[currentIndex] }}
       </div>
 
       <div class="image-wrapper">
         <transition :name="direction" mode="out-in">
           <img
-            :src="images[currentIndex]"
+            :src="props.images[currentIndex]"
             :alt="altText"
-            :key="images[currentIndex]"
+            :key="props.images[currentIndex]"
           />
         </transition>
       </div>
@@ -92,6 +110,13 @@ function next() {
   }
 }
 
+function goTo(absIndex: number) {
+  if (absIndex === currentIndex.value) return
+  direction.value = absIndex > currentIndex.value ? 'slide-left' : 'slide-right'
+  currentIndex.value = absIndex
+}
+
+
 const offset = computed(() => Math.max(0, currentIndex.value - 2))
 
 const surroundingImages = computed(() => {
@@ -125,30 +150,21 @@ const altText = computed(() => {
   justify-content: center;
   padding: 2rem 0 1rem 0;
 }
-
 .gallery-box {
   width: 100%;
   max-width: 1000px;
   background-color: var(--vp-code-block-bg);
-  /* border: 2px solid transparent; */
   border-radius: 1rem;
-  /* box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08); */
   padding: 1rem;
   transition: background-color 0.25s, border-color 0.25s;
   overflow: hidden;
 }
-
-/* .gallery-box:hover {
-  border-color: var(--vp-c-brand-soft);
-} */
-
 .top-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.8rem;
 }
-
 .top-bar button {
   background: var(--vp-c-bg);
   color: var(--vp-c-text-1);
@@ -159,28 +175,25 @@ const altText = computed(() => {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .top-bar button:hover:not(:disabled) {
   background-color: var(--vp-c-brand-soft);
   color: var(--vp-c-brand-1);
 }
-
 .top-bar button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-
 .counter {
   font-size: 0.95rem;
   color: var(--vp-c-text-2);
 }
-
-
 .thumbnails {
   display: flex;
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
 }
 
 .thumb {
@@ -190,23 +203,32 @@ const altText = computed(() => {
   overflow: hidden;
   opacity: 0.5;
   filter: brightness(0.6);
-  transition: all 0.25s ease;
+  transition: transform 0.25s ease, opacity 0.25s ease, filter 0.25s ease, background-color 0.2s ease;
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-
+.thumb:focus {
+  outline: 2px solid var(--vp-c-brand-soft);
+  outline-offset: 2px;
+}
 .thumb.active {
   filter: none;
   opacity: 1;
   transform: scale(1.1);
 }
-
 .thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   pointer-events: none;
+  user-select: none;
 }
-
-
 .caption {
   overflow-x: auto;
   padding: 1rem 1rem 1rem;
@@ -214,12 +236,9 @@ const altText = computed(() => {
   max-width: 100%;
   word-break: break-word;
   font-size: 0.95rem;
-  /* font-style: italic; */
   line-height: 1.4;
   color: var(--vp-c-text-2);
 }
-
-
 .image-wrapper {
   display: flex;
   justify-content: center;
@@ -227,7 +246,6 @@ const altText = computed(() => {
   height: auto;
   transition: height 0.25s ease;
 }
-
 .image-wrapper img {
   max-width: 100%;
   height: auto;
@@ -235,18 +253,31 @@ const altText = computed(() => {
   transition: all 0.3s ease;
   object-fit: contain;
 }
-
 @media (max-width: 600px) {
   .image-wrapper img {
     max-height: 80vh;
   }
-
   .image-wrapper {
     min-height: auto;
   }
 }
-
-
+.all-images-hidden {
+  position: absolute;
+  left: -9999px;
+  top: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  pointer-events: none;
+  user-select: none;
+  visibility: hidden;
+}
+.all-images-hidden img {
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
 .fade-enter-active, .fade-leave-active,
 .slide-left-enter-active, .slide-left-leave-active,
 .slide-right-enter-active, .slide-right-leave-active {
@@ -254,9 +285,7 @@ const altText = computed(() => {
   position: relative;
 }
 
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
-}
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 
 .slide-left-enter-from {
   transform: translateX(100%);
@@ -274,5 +303,25 @@ const altText = computed(() => {
 .slide-right-leave-to {
   transform: translateX(100%);
   opacity: 0;
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+  .thumbnails {
+    gap: 0.75rem; 
+  }
+
+
+  .thumb:hover:not(.active) {
+    opacity: 0.95;
+    filter: none;
+    background-color: rgba(0,0,0,0.02);
+  }
+
+
+  .thumb:focus {
+    outline: 2px solid var(--vp-c-brand-soft);
+    outline-offset: 2px;
+  }
 }
 </style>
