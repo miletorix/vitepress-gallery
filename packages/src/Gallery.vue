@@ -24,18 +24,13 @@
           :key="idx"
           type="button"
           class="thumb"
-          :class="{ active: (idx + offset) === currentIndex }"
+          :class="{ active: currentIndex === (currentIndex - offset + idx) }"
           @pointerdown.stop
-          @click.stop="goTo(idx + offset)"
-          :aria-pressed="(idx + offset) === currentIndex"
-          :title="props.captions?.[idx + offset] || `Image ${idx + offset + 1}`"
+          @click.stop="goTo(currentIndex - offset + idx)"
+          :aria-pressed="currentIndex === (currentIndex - offset + idx)"
+          :title="props.captions?.[currentIndex - offset + idx] || `Image ${currentIndex - offset + idx + 1}`"
         >
-          <img
-            :src="img"
-            :alt="props.captions?.[idx + offset] || ''"
-            draggable="false"
-            @dragstart.prevent
-          />
+          <img :src="img" :alt="props.captions?.[currentIndex - offset + idx] || ''" draggable="false" @dragstart.prevent />
         </button>
       </div>
 
@@ -69,7 +64,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted  } from 'vue'
 
 interface Props {
   images: string[]
@@ -79,12 +74,23 @@ interface Props {
 const props = defineProps<Props>()
 const currentIndex = ref(0)
 const direction = ref('fade')
+const isMobile = ref(false)
 let touchStartX = 0
+
+function checkMobile() {
+  isMobile.value = window.innerWidth <= 960
+}
 
 function onTouchStart(e: TouchEvent) {
   touchStartX = e.changedTouches[0].clientX
 }
-
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 function onTouchEnd(e: TouchEvent) {
   const touchEndX = e.changedTouches[0].clientX
   const diff = touchEndX - touchStartX
@@ -117,18 +123,26 @@ function goTo(absIndex: number) {
 }
 
 
-const offset = computed(() => Math.max(0, currentIndex.value - 2))
-
 const surroundingImages = computed(() => {
   const result: string[] = []
-  for (let i = -2; i <= 2; i++) {
-    const index = currentIndex.value + i
-    if (index >= 0 && index < props.images.length) {
-      result.push(props.images[index])
-    }
+
+  const backCount = isMobile.value ? 1 : 2
+  const forwardCount = isMobile.value ? 2 : 2
+
+  for (let i = -backCount; i <= forwardCount; i++) {
+    const idx = currentIndex.value + i
+    if (idx >= 0 && idx < props.images.length) result.push(props.images[idx])
   }
+
   return result
 })
+
+
+const offset = computed(() => {
+  const backCount = isMobile.value ? 1 : 2
+  return Math.min(backCount, currentIndex.value)
+})
+
 
 function escapeHTML(str: string): string {
   return str
@@ -306,7 +320,7 @@ const altText = computed(() => {
 }
 
 
-@media (hover: hover) and (pointer: fine) {
+@media (hover: hover) and (pointer: fine) and (min-width: 960px) {
   .thumbnails {
     gap: 0.75rem; 
   }
